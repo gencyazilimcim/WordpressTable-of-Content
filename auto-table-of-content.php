@@ -34,29 +34,35 @@ class table_of_content_auto {
 
     public function titleListAdd( $content ) {	
         ob_start();
-        $titleList = $this->getTitleList($content); 
+        global $post;
+	$titleList = $this->getTitleList($content); 
+	
+	//post types
+	$types = array( 'post' ); //, 'page'
+	if ( $post && in_array( $post->post_type, $types, true ) ) {
+		$previousLevel = 0;
+		$custom_content = '<ul>';
 
-        $previousLevel = 0;
-        $custom_content = '<ul>';
+		foreach($titleList as  $headerElement){
+		    $level = $headerElement['tag'];
+
+		    if ($level > $previousLevel && $previousLevel > 0) {
+			$custom_content .= '<ul>';
+		    }elseif ($level < $previousLevel) { 
+			$custom_content .= str_repeat('</ul>', $previousLevel - $level);
+		    }
+
+		    $custom_content .= '<li><a href="#'.sanitize_title($headerElement['title']).'">'.$headerElement['title'].'</a></li>';
+
+		    $previousLevel = $level;
+		}
+
+		$custom_content .= str_repeat('</ul>', $level ?? 0);
+			$endContent = $custom_content;
+		$endContent .= $content;
+		return $endContent;
+	}
         
-        foreach($titleList as  $headerElement){
-            $level = $headerElement['tag'];
-
-            if ($level > $previousLevel && $previousLevel > 0) {
-                $custom_content .= '<ul>';
-            }elseif ($level < $previousLevel) { 
-                $custom_content .= str_repeat('</ul>', $previousLevel - $level);
-            }
-
-            $custom_content .= '<li><a href="#'.sanitize_title($headerElement['title']).'">'.$headerElement['title'].'</a></li>';
-
-            $previousLevel = $level;
-        }
-        
-        $custom_content .= str_repeat('</ul>', $level ?? 0);
-		$endContent = $custom_content;
-        $endContent .= $content;
-        return $endContent;
         ob_get_clean();
     }
 }
