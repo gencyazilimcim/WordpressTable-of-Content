@@ -2,7 +2,7 @@
 
 class table_of_content_auto {
     public function __construct(){
-		add_filter( 'the_content', array($this, 'auto_id_headings') );
+	add_filter( 'the_content', array($this, 'auto_id_headings') );
         add_filter( 'the_content', array($this, 'titleListAdd') );
     }
 
@@ -35,11 +35,12 @@ class table_of_content_auto {
     public function titleListAdd( $content ) {	
         ob_start();
         global $post;
-	$titleList = $this->getTitleList($content); 
-	
+	    
 	//post types
 	$types = array( 'post' ); //, 'page'
 	if ( $post && in_array( $post->post_type, $types, true ) ) {
+		$titleList = $this->getTitleList($content); 
+		
 		$previousLevel = 0;
 		$custom_content = '<ul>';
 
@@ -58,9 +59,8 @@ class table_of_content_auto {
 		}
 
 		$custom_content .= str_repeat('</ul>', $level ?? 0);
-			$endContent = $custom_content;
-		$endContent .= $content;
-		return $endContent;
+		$custom_content .= $content;
+		return $custom_content;
 	}
         
         ob_get_clean();
